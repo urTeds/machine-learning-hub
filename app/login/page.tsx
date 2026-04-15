@@ -70,24 +70,30 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 p-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl"></div>
+      </div>
+
+      <div className="relative z-10 w-full max-w-md">
         {/* Header */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl mb-4 shadow-lg">
-            <span className="text-white text-2xl font-bold">ML</span>
+        <div className="text-center mb-10">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl mb-6 shadow-2xl">
+            <span className="text-white text-3xl font-black">ML</span>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Machine Learning Hub</h1>
-          <p className="text-gray-600">Welcome back</p>
+          <h1 className="text-3xl font-black text-white mb-2">Machine Learning Hub</h1>
+          <p className="text-slate-400">Access the future of AI</p>
         </div>
 
         {/* Card */}
-        <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+        <div className="bg-slate-800/50 backdrop-blur-xl rounded-2xl shadow-2xl overflow-hidden border border-slate-700">
           {/* Form */}
           <div className="p-8 sm:p-10">
             {isSignUp ? (
               <>
-                <h2 className="text-xl font-bold text-gray-900 mb-6">Create Account</h2>
+                <h2 className="text-2xl font-bold text-white mb-8">Create Account</h2>
 
                 <input
                   type="text"
@@ -95,7 +101,7 @@ export default function LoginPage() {
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   disabled={isLoading}
-                  className="w-full px-4 py-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all placeholder-gray-500 text-gray-900 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                  className="w-full px-4 py-3 mb-4 bg-slate-700/50 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all placeholder-slate-400 text-white disabled:opacity-50 disabled:cursor-not-allowed"
                 />
 
                 <input
@@ -104,7 +110,7 @@ export default function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={isLoading}
-                  className="w-full px-4 py-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all placeholder-gray-500 text-gray-900 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                  className="w-full px-4 py-3 mb-4 bg-slate-700/50 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all placeholder-slate-400 text-white disabled:opacity-50 disabled:cursor-not-allowed"
                 />
 
                 <input
@@ -113,13 +119,13 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={isLoading}
-                  className="w-full px-4 py-3 mb-6 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all placeholder-gray-500 text-gray-900 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                  className="w-full px-4 py-3 mb-6 bg-slate-700/50 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all placeholder-slate-400 text-white disabled:opacity-50 disabled:cursor-not-allowed"
                 />
 
                 <button
                   onClick={handleSignUp}
                   disabled={isLoading}
-                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-lg font-semibold hover:shadow-lg transform hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none mb-4"
+                  className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 rounded-lg font-bold hover:shadow-lg hover:shadow-blue-500/50 transform hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none mb-4"
                 >
                   {isLoading ? "Creating Account..." : "Create Account"}
                 </button>
@@ -130,14 +136,14 @@ export default function LoginPage() {
                     setMessage("");
                   }}
                   disabled={isLoading}
-                  className="w-full text-blue-600 py-2 font-medium hover:text-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full text-blue-400 py-2 font-semibold hover:text-blue-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Already have an account? Sign In
                 </button>
               </>
             ) : (
               <>
-                <h2 className="text-xl font-bold text-gray-900 mb-6">Sign In</h2>
+                <h2 className="text-2xl font-bold text-white mb-8">Sign In</h2>
 
                 <input
                   type="email"
@@ -145,7 +151,7 @@ export default function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={isLoading}
-                  className="w-full px-4 py-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all placeholder-gray-500 text-gray-900 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                  className="w-full px-4 py-3 mb-4 bg-slate-700/50 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all placeholder-slate-400 text-white disabled:opacity-50 disabled:cursor-not-allowed"
                 />
 
                 <input
@@ -154,13 +160,13 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={isLoading}
-                  className="w-full px-4 py-3 mb-6 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all placeholder-gray-500 text-gray-900 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                  className="w-full px-4 py-3 mb-6 bg-slate-700/50 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all placeholder-slate-400 text-white disabled:opacity-50 disabled:cursor-not-allowed"
                 />
 
                 <button
                   onClick={handleLogin}
                   disabled={isLoading}
-                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-lg font-semibold hover:shadow-lg transform hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none mb-4"
+                  className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 rounded-lg font-bold hover:shadow-lg hover:shadow-blue-500/50 transform hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none mb-4"
                 >
                   {isLoading ? "Signing In..." : "Sign In"}
                 </button>
@@ -171,7 +177,7 @@ export default function LoginPage() {
                     setMessage("");
                   }}
                   disabled={isLoading}
-                  className="w-full text-blue-600 py-2 font-medium hover:text-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full text-blue-400 py-2 font-semibold hover:text-blue-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Don't have an account? Create one
                 </button>
@@ -184,18 +190,18 @@ export default function LoginPage() {
             <div
               className={`px-8 sm:px-10 py-4 border-t ${
                 message.includes("Error:") || message.includes("Please fill")
-                  ? "bg-red-50 border-red-200 text-red-700"
-                  : "bg-green-50 border-green-200 text-green-700"
+                  ? "bg-red-500/20 border-red-500/50 text-red-300"
+                  : "bg-emerald-500/20 border-emerald-500/50 text-emerald-300"
               }`}
             >
-              <p className="text-sm font-medium">{message}</p>
+              <p className="text-sm font-semibold">{message}</p>
             </div>
           )}
         </div>
 
         {/* Footer */}
-        <p className="text-center text-gray-600 text-sm mt-6">
-          Secure authentication powered by Supabase
+        <p className="text-center text-slate-400 text-sm mt-6">
+          🔒 Secure authentication powered by Supabase
         </p>
       </div>
     </div>

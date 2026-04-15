@@ -74,22 +74,29 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl"></div>
+      </div>
+
+      <div className="relative z-10 w-full max-w-md">
         {/* Header */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl mb-4 shadow-lg">
-            <span className="text-white text-2xl font-bold">ML</span>
+        <div className="text-center mb-10">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl mb-6 shadow-2xl">
+            <span className="text-white text-3xl font-black">ML</span>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome! 👋</h1>
+          <h1 className="text-3xl font-black text-white mb-2">Welcome! 👋</h1>
+          <p className="text-slate-400">Dashboard</p>
         </div>
 
         {/* Card */}
-        <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+        <div className="bg-slate-800/50 backdrop-blur-xl rounded-2xl shadow-2xl overflow-hidden border border-slate-700">
           <div className="p-8 sm:p-10">
             {/* User Avatar */}
-            <div className="flex justify-center mb-6">
-              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-2xl font-bold shadow-lg">
+            <div className="flex justify-center mb-8">
+              <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-3xl font-black shadow-2xl">
                 {profile.full_name
                   ? profile.full_name.charAt(0).toUpperCase()
                   : profile.email.charAt(0).toUpperCase()}
@@ -99,17 +106,17 @@ export default function Dashboard() {
             {/* User Info Cards */}
             <div className="space-y-4 mb-8">
               {/* Name Card */}
-              <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-4 border border-blue-100">
-                <p className="text-gray-600 text-sm font-medium mb-1">Full Name</p>
-                <p className="text-gray-900 text-lg font-semibold">
+              <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-lg p-5 border border-slate-600 hover:border-blue-500/50 transition-colors">
+                <p className="text-slate-400 text-xs font-semibold mb-2">FULL NAME</p>
+                <p className="text-white text-xl font-bold">
                   {profile.full_name || "Not set"}
                 </p>
               </div>
 
               {/* Email Card */}
-              <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-4 border border-blue-100">
-                <p className="text-gray-600 text-sm font-medium mb-1">Email Address</p>
-                <p className="text-gray-900 text-lg font-semibold break-all">{profile.email}</p>
+              <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-lg p-5 border border-slate-600 hover:border-blue-500/50 transition-colors">
+                <p className="text-slate-400 text-xs font-semibold mb-2">EMAIL ADDRESS</p>
+                <p className="text-white text-lg font-bold break-all">{profile.email}</p>
               </div>
             </div>
 
@@ -117,13 +124,13 @@ export default function Dashboard() {
             <div className="space-y-3">
               <button
                 onClick={handleLogout}
-                className="w-full bg-gradient-to-r from-red-500 to-red-600 text-white py-3 rounded-lg font-semibold hover:shadow-lg transform hover:scale-105 transition-all"
+                className="w-full bg-gradient-to-r from-red-500 to-red-600 text-white py-3 rounded-lg font-bold hover:shadow-lg hover:shadow-red-500/50 transform hover:scale-105 transition-all"
               >
                 Sign Out
               </button>
               <button
                 onClick={() => router.push("/")}
-                className="w-full bg-gray-100 text-gray-900 py-3 rounded-lg font-semibold hover:bg-gray-200 transition-all"
+                className="w-full bg-slate-700 hover:bg-slate-600 text-white py-3 rounded-lg font-bold transition-all"
               >
                 Back to Home
               </button>
@@ -131,16 +138,16 @@ export default function Dashboard() {
           </div>
 
           {/* Footer */}
-          <div className="bg-gradient-to-r from-blue-50 to-purple-50 border-t border-blue-100 px-8 sm:px-10 py-4">
-            <p className="text-xs text-gray-600 text-center">
+          <div className="bg-slate-700/50 border-t border-slate-600 px-8 sm:px-10 py-4">
+            <p className="text-xs text-slate-400 text-center">
               ✓ Securely authenticated with Supabase
             </p>
           </div>
         </div>
 
         {/* Bottom Text */}
-        <p className="text-center text-gray-600 text-sm mt-6">
-          Enjoy exploring Machine Learning!
+        <p className="text-center text-slate-400 text-sm mt-6">
+          Ready to explore more? 🚀
         </p>
       </div>
     </div>
