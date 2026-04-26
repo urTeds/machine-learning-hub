@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../../lib/supabase";
+import { ArticleFeed } from "@/components/articles/ArticleFeed";
 
 interface Profile {
   id: string;
@@ -26,24 +27,20 @@ export default function Dashboard() {
         return;
       }
 
-      // Fetch user profile
-      const { data, error } = await supabase
+      // Fetch user profile — maybeSingle returns null (not an error) when no row exists
+      const { data } = await supabase
         .from("profiles")
         .select("id, email, full_name")
         .eq("id", user.id)
-        .single();
+        .maybeSingle();
 
-      if (error) {
-        console.error("Error fetching profile:", error);
-        // Fallback to auth user data
-        setProfile({
+      setProfile(
+        data ?? {
           id: user.id,
-          email: user.email || "",
-          full_name: user.user_metadata?.full_name || "",
-        });
-      } else {
-        setProfile(data);
-      }
+          email: user.email ?? "",
+          full_name: user.user_metadata?.full_name ?? "",
+        }
+      );
 
       setLoading(false);
     };
@@ -56,14 +53,30 @@ export default function Dashboard() {
     router.push("/");
   };
 
+  // Derive initials and first name from profile data
+  const getInitials = (name: string, email: string): string => {
+    if (name) {
+      const parts = name.trim().split(" ");
+      return parts.length >= 2
+        ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+        : parts[0][0].toUpperCase();
+    }
+    return email.charAt(0).toUpperCase();
+  };
+
+  const getFirstName = (name: string): string => {
+    if (!name) return "there";
+    return name.trim().split(" ")[0];
+  };
+
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      <div className="min-h-screen flex items-center justify-center bg-slate-900">
         <div className="text-center">
           <div className="inline-block">
-            <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mb-4"></div>
+            <div className="w-12 h-12 border-4 border-slate-700 border-t-blue-500 rounded-full animate-spin mb-4"></div>
           </div>
-          <p className="text-gray-600 font-medium">Loading your profile...</p>
+          <p className="text-slate-400 font-medium">Loading your profile...</p>
         </div>
       </div>
     );
@@ -73,83 +86,83 @@ export default function Dashboard() {
     return null;
   }
 
+  const initials = getInitials(profile.full_name, profile.email);
+  const firstName = getFirstName(profile.full_name);
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Background decoration */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl"></div>
-      </div>
-
-      <div className="relative z-10 w-full max-w-md">
-        {/* Header */}
-        <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl mb-6 shadow-2xl">
-            <span className="text-white text-3xl font-black">ML</span>
-          </div>
-          <h1 className="text-3xl font-black text-white mb-2">Welcome! 👋</h1>
-          <p className="text-slate-400">Dashboard</p>
-        </div>
-
-        {/* Card */}
-        <div className="bg-slate-800/50 backdrop-blur-xl rounded-2xl shadow-2xl overflow-hidden border border-slate-700">
-          <div className="p-8 sm:p-10">
-            {/* User Avatar */}
-            <div className="flex justify-center mb-8">
-              <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-3xl font-black shadow-2xl">
-                {profile.full_name
-                  ? profile.full_name.charAt(0).toUpperCase()
-                  : profile.email.charAt(0).toUpperCase()}
-              </div>
+    <div className="min-h-screen bg-slate-900 flex flex-col">
+      {/* Sticky header */}
+      <header className="sticky top-0 z-50 border-b border-slate-800/80 bg-slate-900/90 backdrop-blur-md">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+          {/* Logo */}
+          <div className="flex items-center gap-3">
+            <div className="inline-flex items-center justify-center w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg">
+              <span className="text-white text-sm font-black">ML</span>
             </div>
-
-            {/* User Info Cards */}
-            <div className="space-y-4 mb-8">
-              {/* Name Card */}
-              <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-lg p-5 border border-slate-600 hover:border-blue-500/50 transition-colors">
-                <p className="text-slate-400 text-xs font-semibold mb-2">FULL NAME</p>
-                <p className="text-white text-xl font-bold">
-                  {profile.full_name || "Not set"}
-                </p>
-              </div>
-
-              {/* Email Card */}
-              <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-lg p-5 border border-slate-600 hover:border-blue-500/50 transition-colors">
-                <p className="text-slate-400 text-xs font-semibold mb-2">EMAIL ADDRESS</p>
-                <p className="text-white text-lg font-bold break-all">{profile.email}</p>
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="space-y-3">
-              <button
-                onClick={handleLogout}
-                className="w-full bg-gradient-to-r from-red-500 to-red-600 text-white py-3 rounded-lg font-bold hover:shadow-lg hover:shadow-red-500/50 transform hover:scale-105 transition-all"
-              >
-                Sign Out
-              </button>
-              <button
-                onClick={() => router.push("/")}
-                className="w-full bg-slate-700 hover:bg-slate-600 text-white py-3 rounded-lg font-bold transition-all"
-              >
-                Back to Home
-              </button>
-            </div>
+            <span className="text-white font-semibold text-sm hidden sm:block">
+              Machine Learning Hub
+            </span>
           </div>
 
-          {/* Footer */}
-          <div className="bg-slate-700/50 border-t border-slate-600 px-8 sm:px-10 py-4">
-            <p className="text-xs text-slate-400 text-center">
-              ✓ Securely authenticated with Supabase
-            </p>
+          {/* User info + Sign Out */}
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-xs font-bold shrink-0">
+                {initials}
+              </div>
+              <span className="text-slate-300 text-sm font-medium max-w-[120px] truncate hidden sm:block">
+                {profile.full_name || profile.email}
+              </span>
+            </div>
+
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-1.5 text-slate-400 hover:text-white border border-slate-700 hover:border-slate-500 rounded-lg px-3 py-1.5 text-sm font-medium transition-all"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                className="w-4 h-4"
+              >
+                <path
+                  d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <polyline
+                  points="16 17 21 12 16 7"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <line
+                  x1="21"
+                  y1="12"
+                  x2="9"
+                  y2="12"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+              <span className="hidden sm:inline">Sign Out</span>
+            </button>
           </div>
         </div>
+      </header>
 
-        {/* Bottom Text */}
-        <p className="text-center text-slate-400 text-sm mt-6">
-          Ready to explore more? 🚀
-        </p>
-      </div>
+      {/* Main content */}
+      <main className="flex-1 max-w-6xl mx-auto w-full px-4 sm:px-6 py-8">
+        {/* Welcome section */}
+        <div className="mb-8">
+          <h1 className="text-2xl sm:text-3xl font-black text-white mb-1">
+            Welcome back, {firstName}!
+          </h1>
+          <p className="text-slate-400">Here&apos;s the latest in machine learning.</p>
+        </div>
+
+        <ArticleFeed userId={profile.id} />
+      </main>
     </div>
   );
 }
