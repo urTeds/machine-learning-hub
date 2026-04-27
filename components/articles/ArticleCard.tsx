@@ -64,18 +64,34 @@ export function ArticleCard({ article, userId }: ArticleCardProps): ReactElement
     setIsLiking(true);
 
     if (liked) {
-      await supabase
+      const { error } = await supabase
         .from("likes")
         .delete()
         .match({ user_id: userId, article_id: article.id });
-      setLiked(false);
-      setLikeCount((c) => c - 1);
+
+      if (!error) {
+        setLiked(false);
+        setLikeCount((c) => c - 1);
+      }
     } else {
-      await supabase
+      const { error } = await supabase
         .from("likes")
         .insert({ user_id: userId, article_id: article.id });
-      setLiked(true);
-      setLikeCount((c) => c + 1);
+
+      if (!error) {
+        setLiked(true);
+        setLikeCount((c) => c + 1);
+
+        void fetch("/api/notifications/email", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            eventType: "like",
+            articleId: article.id,
+            actorId: userId,
+          }),
+        }).catch(() => undefined);
+      }
     }
 
     setIsLiking(false);

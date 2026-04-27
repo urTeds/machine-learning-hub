@@ -95,6 +95,16 @@ export function CommentModal({
       setNewComment("");
       await fetchComments();
       onCommentAdded();
+
+      void fetch("/api/notifications/email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          eventType: "comment",
+          articleId,
+          actorId: userId,
+        }),
+      }).catch(() => undefined);
     }
     setIsSubmitting(false);
   };

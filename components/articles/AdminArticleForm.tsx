@@ -47,17 +47,33 @@ export function AdminArticleForm({ authorId, onPublished }: AdminArticleFormProp
     setError(null);
 
     try {
-      const { error: insertError } = await supabase.from("articles").insert({
-        title: title.trim(),
-        content: content.trim(),
-        cover_image: coverImage.trim() || null,
-        tags,
-        author_id: authorId,
-        published_at: new Date().toISOString(),
-      });
+      const { data: insertedArticle, error: insertError } = await supabase
+        .from("articles")
+        .insert({
+          title: title.trim(),
+          content: content.trim(),
+          cover_image: coverImage.trim() || null,
+          tags,
+          author_id: authorId,
+          published_at: new Date().toISOString(),
+        })
+        .select("id")
+        .single();
 
       if (insertError) {
         throw new Error(insertError.message || "Failed to publish article");
+      }
+
+      if (insertedArticle?.id) {
+        void fetch("/api/notifications/email", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            eventType: "new_article",
+            articleId: insertedArticle.id,
+            actorId: authorId,
+          }),
+        }).catch(() => undefined);
       }
 
       setTitle("");
