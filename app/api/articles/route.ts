@@ -1,53 +1,33 @@
+import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
+import type { Article } from "@/lib/types";
 
-export interface DevToArticle {
-  id: number;
-  title: string;
-  description: string;
-  published_at: string;
-  readable_publish_date: string;
-  tag_list: string[];
-  cover_image: string | null;
-  reading_time_minutes: number;
-  url: string;
-  user: {
-    name: string;
-    profile_image: string;
-  };
-  positive_reactions_count: number;
-  comments_count: number;
-}
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 export async function GET() {
-  const tags = ["machinelearning", "deeplearning", "ai", "nlp", "datascience"];
-  const opts = { next: { revalidate: 3600 } };
+  try {
+    const { data, error } = await supabase
+      .from("articles")
+      .select("*, author_id")
+      .order("published_at", { ascending: false });
 
-  const results = await Promise.allSettled(
-    tags.map((tag) =>
-      fetch(`https://dev.to/api/articles?tag=${tag}&per_page=20`, opts).then(
-        (r) => (r.ok ? (r.json() as Promise<DevToArticle[]>) : []
-      ))
-    )
-  );
-
-  const seen = new Set<number>();
-  const articles: DevToArticle[] = [];
-
-  for (const result of results) {
-    if (result.status === "fulfilled") {
-      for (const article of result.value) {
-        if (!seen.has(article.id)) {
-          seen.add(article.id);
-          articles.push(article);
-        }
-      }
+    if (error) {
+      console.error("Articles API error:", error);
+      return NextResponse.json(
+        { success: false, error: error.message },
+        { status: 500 }
+      );
     }
+
+    return NextResponse.json({ success: true, data: data as Article[] });
+  } catch (err) {
+    console.error("Articles API exception:", err);
+    return NextResponse.json(
+      { success: false, error: "Failed to fetch articles" },
+      { status: 500 }
+    );
   }
-
-  articles.sort(
-    (a, b) =>
-      new Date(b.published_at).getTime() - new Date(a.published_at).getTime()
-  );
-
-  return NextResponse.json({ success: true, data: articles.slice(0, 30) });
 }

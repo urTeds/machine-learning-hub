@@ -57,7 +57,6 @@ export function CommentModal({
     setIsLoading(false);
   };
 
-  // Fetch comments whenever modal opens
   useEffect(() => {
     if (isOpen) {
       fetchComments();
@@ -65,7 +64,6 @@ export function CommentModal({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, articleId]);
 
-  // Escape key handler + body scroll lock
   useEffect(() => {
     if (!isOpen) return;
 
@@ -117,7 +115,7 @@ export function CommentModal({
         aria-hidden="true"
       />
 
-      {/* Modal panel */}
+      {/* Panel */}
       <div className="relative bg-slate-800 border border-slate-700 rounded-2xl w-full max-w-lg max-h-[70vh] flex flex-col shadow-2xl">
         {/* Header */}
         <div className="flex items-start justify-between gap-3 p-5 border-b border-slate-700">
@@ -172,9 +170,7 @@ export function CommentModal({
             </div>
           ) : comments.length === 0 ? (
             <div className="text-center py-10">
-              <p className="text-slate-500 text-sm">
-                No comments yet. Be the first!
-              </p>
+              <p className="text-slate-500 text-sm">No comments yet. Be the first!</p>
             </div>
           ) : (
             comments.map((comment) => (
@@ -183,15 +179,19 @@ export function CommentModal({
                 className="bg-slate-700/40 border border-slate-600/40 rounded-xl p-3"
               >
                 <div className="flex items-center justify-between gap-2 mb-1.5">
-                  {/* Show shortened user id as anonymous handle since we don't store usernames here */}
-                  <span className="text-slate-400 text-xs font-semibold">
-                    {comment.user_id === userId ? "You" : "Member"}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <div className="w-5 h-5 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-[9px] font-bold shrink-0">
+                      {comment.user_id === userId ? "Y" : "M"}
+                    </div>
+                    <span className="text-slate-400 text-xs font-semibold">
+                      {comment.user_id === userId ? "You" : "Member"}
+                    </span>
+                  </div>
                   <span className="text-slate-500 text-xs">
                     {formatRelativeTime(comment.created_at)}
                   </span>
                 </div>
-                <p className="text-slate-200 text-sm leading-relaxed">
+                <p className="text-slate-200 text-sm leading-relaxed pl-7">
                   {comment.content}
                 </p>
               </div>
@@ -212,7 +212,6 @@ export function CommentModal({
             aria-label="Write a comment"
             className="flex-1 bg-slate-700/60 border border-slate-600 rounded-xl px-3 py-2.5 text-sm text-white placeholder-slate-500 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all"
             onKeyDown={(e) => {
-              // Cmd/Ctrl + Enter submits
               if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
                 e.preventDefault();
                 handleSubmit(e as unknown as React.FormEvent);

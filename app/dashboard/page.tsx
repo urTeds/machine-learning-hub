@@ -2,13 +2,16 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { supabase } from "../../lib/supabase";
 import { ArticleFeed } from "@/components/articles/ArticleFeed";
+import { NotificationBell } from "@/components/notifications/NotificationBell";
 
 interface Profile {
   id: string;
   email: string;
   full_name: string;
+  role: string;
 }
 
 export default function Dashboard() {
@@ -27,10 +30,18 @@ export default function Dashboard() {
         return;
       }
 
-      // Fetch user profile — maybeSingle returns null (not an error) when no row exists
+      await supabase.from("profiles").upsert(
+        {
+          id: user.id,
+          email: user.email ?? "",
+          full_name: user.user_metadata?.full_name ?? "",
+        },
+        { onConflict: "id" }
+      );
+
       const { data } = await supabase
         .from("profiles")
-        .select("id, email, full_name")
+        .select("id, email, full_name, role")
         .eq("id", user.id)
         .maybeSingle();
 
@@ -39,6 +50,7 @@ export default function Dashboard() {
           id: user.id,
           email: user.email ?? "",
           full_name: user.user_metadata?.full_name ?? "",
+          role: "user",
         }
       );
 
@@ -53,7 +65,6 @@ export default function Dashboard() {
     router.push("/");
   };
 
-  // Derive initials and first name from profile data
   const getInitials = (name: string, email: string): string => {
     if (name) {
       const parts = name.trim().split(" ");
@@ -82,12 +93,11 @@ export default function Dashboard() {
     );
   }
 
-  if (!profile) {
-    return null;
-  }
+  if (!profile) return null;
 
   const initials = getInitials(profile.full_name, profile.email);
   const firstName = getFirstName(profile.full_name);
+  const isAdmin = profile.role === "admin";
 
   return (
     <div className="min-h-screen bg-slate-900 flex flex-col">
@@ -104,8 +114,26 @@ export default function Dashboard() {
             </span>
           </div>
 
-          {/* User info + Sign Out */}
+          {/* Right side */}
           <div className="flex items-center gap-3">
+            {/* Admin link — only visible to admins */}
+            {isAdmin && (
+              <Link
+                href="/admin"
+                className="flex items-center gap-1.5 text-xs font-semibold text-purple-400 bg-purple-500/10 border border-purple-500/20 hover:border-purple-400/40 rounded-lg px-3 py-1.5 transition-all"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-3.5 h-3.5" aria-hidden="true">
+                  <path d="M12 20h9" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                Admin
+              </Link>
+            )}
+
+            {/* Notification bell */}
+            <NotificationBell userId={profile.id} />
+
+            {/* User info */}
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-xs font-bold shrink-0">
                 {initials}
@@ -125,6 +153,7 @@ export default function Dashboard() {
                 stroke="currentColor"
                 strokeWidth="1.5"
                 className="w-4 h-4"
+                aria-hidden="true"
               >
                 <path
                   d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"
@@ -153,7 +182,6 @@ export default function Dashboard() {
 
       {/* Main content */}
       <main className="flex-1 max-w-6xl mx-auto w-full px-4 sm:px-6 py-8">
-        {/* Welcome section */}
         <div className="mb-8">
           <h1 className="text-2xl sm:text-3xl font-black text-white mb-1">
             Welcome back, {firstName}!

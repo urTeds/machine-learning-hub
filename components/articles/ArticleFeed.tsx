@@ -1,25 +1,26 @@
 "use client";
 
 import { useEffect, useState, type ReactElement } from "react";
-import type { DevToArticle } from "@/app/api/articles/route";
+import type { Article } from "@/lib/types";
 import { ArticleCard } from "./ArticleCard";
 
 interface ArticleFeedProps {
   userId: string;
 }
 
-const FILTERS: { label: string; value: string | null }[] = [
+const TAG_FILTERS: { label: string; value: string | null }[] = [
   { label: "All", value: null },
   { label: "Machine Learning", value: "machinelearning" },
   { label: "Deep Learning", value: "deeplearning" },
   { label: "AI", value: "ai" },
   { label: "NLP", value: "nlp" },
+  { label: "Data Science", value: "datascience" },
 ];
 
 const ITEMS_PER_PAGE = 6;
 
 export function ArticleFeed({ userId }: ArticleFeedProps): ReactElement {
-  const [articles, setArticles] = useState<DevToArticle[]>([]);
+  const [articles, setArticles] = useState<Article[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
@@ -38,8 +39,7 @@ export function ArticleFeed({ userId }: ArticleFeedProps): ReactElement {
       return;
     }
 
-    const json: { success: boolean; data?: DevToArticle[]; error?: string } =
-      await res.json();
+    const json: { success: boolean; data?: Article[]; error?: string } = await res.json();
 
     if (!json.success || !json.data) {
       setError(json.error ?? "Something went wrong.");
@@ -55,7 +55,6 @@ export function ArticleFeed({ userId }: ArticleFeedProps): ReactElement {
     fetchArticles();
   }, []);
 
-  // Reset to page 1 whenever filter or search changes
   useEffect(() => {
     setCurrentPage(1);
   }, [activeFilter, query]);
@@ -63,13 +62,12 @@ export function ArticleFeed({ userId }: ArticleFeedProps): ReactElement {
   const filtered = articles.filter((a) => {
     const matchesTag =
       activeFilter === null ||
-      a.tag_list.map((t) => t.toLowerCase()).includes(activeFilter);
+      a.tags.map((t) => t.toLowerCase()).includes(activeFilter);
     const q = query.trim().toLowerCase();
     const matchesQuery =
       q === "" ||
       a.title.toLowerCase().includes(q) ||
-      a.description.toLowerCase().includes(q) ||
-      a.user.name.toLowerCase().includes(q);
+      a.content.toLowerCase().includes(q);
     return matchesTag && matchesQuery;
   });
 
@@ -80,10 +78,9 @@ export function ArticleFeed({ userId }: ArticleFeedProps): ReactElement {
   );
 
   return (
-    <section aria-label="Latest ML Articles">
+    <section aria-label="Latest Articles">
       {/* Header */}
       <div className="flex flex-col gap-4 mb-6">
-        {/* Title + search */}
         <div className="flex flex-col sm:flex-row sm:items-center gap-4">
           <div className="flex items-center gap-3 shrink-0">
             <h2 className="text-white font-bold text-lg">Latest Articles</h2>
@@ -127,11 +124,10 @@ export function ArticleFeed({ userId }: ArticleFeedProps): ReactElement {
           </div>
         </div>
 
-        {/* Tags + pagination */}
+        {/* Tag filters + pagination */}
         <div className="flex items-center gap-2">
-          {/* Tag pills — scrollable */}
           <div className="flex items-center gap-2 overflow-x-auto pb-0.5 scrollbar-hide flex-1">
-            {FILTERS.map((f) => {
+            {TAG_FILTERS.map((f) => {
               const isActive = activeFilter === f.value;
               return (
                 <button
@@ -149,7 +145,6 @@ export function ArticleFeed({ userId }: ArticleFeedProps): ReactElement {
             })}
           </div>
 
-          {/* Pagination controls */}
           {!isLoading && !error && totalPages > 1 && (
             <div className="flex items-center gap-1 shrink-0">
               <button
@@ -197,7 +192,7 @@ export function ArticleFeed({ userId }: ArticleFeedProps): ReactElement {
         </div>
       </div>
 
-      {/* Loading — skeleton grid */}
+      {/* Skeleton */}
       {isLoading && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {Array.from({ length: 6 }).map((_, i) => (
@@ -223,7 +218,7 @@ export function ArticleFeed({ userId }: ArticleFeedProps): ReactElement {
         </div>
       )}
 
-      {/* Articles */}
+      {/* Articles grid */}
       {!isLoading && !error && paginated.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {paginated.map((article) => (
@@ -240,7 +235,7 @@ export function ArticleFeed({ userId }: ArticleFeedProps): ReactElement {
               ? `No results for "${query}".`
               : activeFilter
               ? "No articles found for this topic."
-              : "No articles found right now. Check back soon."}
+              : "No articles published yet. Check back soon."}
           </p>
           {(query || activeFilter) && (
             <button

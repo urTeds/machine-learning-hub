@@ -24,7 +24,7 @@ export default function LoginPage() {
     setIsLoading(true);
     setMessage("");
 
-    const { data, error } = await supabase.auth.signUp({
+    const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -63,6 +63,17 @@ export default function LoginPage() {
     if (error) {
       setMessage("Error: " + error.message);
     } else {
+      if (data.user) {
+        await supabase.from("profiles").upsert(
+          {
+            id: data.user.id,
+            email: data.user.email ?? "",
+            full_name: data.user.user_metadata?.full_name ?? "",
+          },
+          { onConflict: "id" }
+        );
+      }
+
       setMessage("Login successful! Redirecting...");
       setTimeout(() => {
         router.push("/dashboard");
